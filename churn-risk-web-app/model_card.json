@@ -1,0 +1,53 @@
+{
+  "simulated_data": true,
+  "level_shares": {
+    "contract": {
+      "Monthly": 0.574,
+      "One year": 0.2683,
+      "Two year": 0.1576
+    },
+    "plan": {
+      "Basic": 0.4543,
+      "Premium": 0.2136,
+      "Standard": 0.3321
+    },
+    "payment": {
+      "Auto-debit": 0.2981,
+      "Card": 0.2521,
+      "Cash": 0.1552,
+      "Transfer": 0.2945
+    }
+  },
+  "model": "Logistic regression with balanced class weights",
+  "test_auc": 0.751,
+  "alert_threshold": 0.575,
+  "training_rows": 4200,
+  "inputs": {
+    "tenure_months": "whole number, 1 to 72",
+    "contract": [
+      "Monthly",
+      "One year",
+      "Two year"
+    ],
+    "plan": [
+      "Basic",
+      "Premium",
+      "Standard"
+    ],
+    "payment": [
+      "Auto-debit",
+      "Card",
+      "Cash",
+      "Transfer"
+    ],
+    "support_calls": "whole number, 0 to 30 (calls in the last 6 months)",
+    "late_payments": "whole number, 0 to 30",
+    "has_bundle": "0 or 1",
+    "monthly_charge_ngn": "number, 1000 to 100000"
+  },
+  "limits": [
+    "Trained on simulated customers, so scores say nothing about real people.",
+    "The model uses balanced class weights, so the score ranks risk. It is not a true probability of leaving.",
+    "Only the alert threshold was tuned for cost. The cost assumptions are in churn-prediction."
+  ]
+}

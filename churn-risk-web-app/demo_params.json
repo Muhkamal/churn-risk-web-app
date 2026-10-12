@@ -1,0 +1,96 @@
+{
+  "threshold": 0.575,
+  "intercept": 0.17304341718750346,
+  "numeric": [
+    {
+      "name": "tenure_months",
+      "mean": 21.20357142857143,
+      "scale": 19.101140245374605,
+      "coef": -0.5673243576565358
+    },
+    {
+      "name": "support_calls",
+      "mean": 1.3033333333333332,
+      "scale": 1.1395021190700259,
+      "coef": 0.22632270342451927
+    },
+    {
+      "name": "late_payments",
+      "mean": 0.5033333333333333,
+      "scale": 0.7201113229635523,
+      "coef": 0.23976296955764517
+    },
+    {
+      "name": "has_bundle",
+      "mean": 0.39285714285714285,
+      "scale": 0.4883855118277623,
+      "coef": -0.2420447547557709
+    },
+    {
+      "name": "monthly_charge_ngn",
+      "mean": 11402.57142857143,
+      "scale": 7454.177994804745,
+      "coef": 0.39966425264694355
+    }
+  ],
+  "categorical": {
+    "contract": [
+      {
+        "level": "One year",
+        "coef": -1.0464411749898082
+      },
+      {
+        "level": "Two year",
+        "coef": -1.84379849064237
+      }
+    ],
+    "plan": [
+      {
+        "level": "Premium",
+        "coef": -0.31907614713595844
+      },
+      {
+        "level": "Standard",
+        "coef": -0.07306611352172672
+      }
+    ],
+    "payment": [
+      {
+        "level": "Card",
+        "coef": 0.2903887340711971
+      },
+      {
+        "level": "Cash",
+        "coef": 0.40277273042454287
+      },
+      {
+        "level": "Transfer",
+        "coef": 0.3802019742930155
+      }
+    ]
+  },
+  "shares": {
+    "contract": {
+      "Monthly": 0.574,
+      "One year": 0.2683,
+      "Two year": 0.1576
+    },
+    "plan": {
+      "Basic": 0.4543,
+      "Premium": 0.2136,
+      "Standard": 0.3321
+    },
+    "payment": {
+      "Auto-debit": 0.2981,
+      "Card": 0.2521,
+      "Cash": 0.1552,
+      "Transfer": 0.2945
+    }
+  },
+  "baselines": {
+    "contract": "Monthly",
+    "plan": "Basic",
+    "payment": "Auto-debit"
+  },
+  "test_auc": 0.751
+}

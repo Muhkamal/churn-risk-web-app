@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Churn Risk Checker</title>
+<style>
+  :root { --bg:#eceee9; --ink:#14181b; --muted:#566068; --rule:#c9cfca; --accent:#e8581c; --ok:#0f8f69; --plate:#f7f8f5; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 56px; }
+  h1 { font-size: 2rem; line-height: 1.1; margin: 0 0 6px; }
+  .sub { color: var(--muted); margin: 0 0 22px; }
+  .banner { border: 1.5px dashed var(--accent); padding: 8px 12px; font-size: 14px; margin-bottom: 22px; }
+  form { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px 18px; }
+  label { display: grid; gap: 4px; font-size: 14px; color: var(--muted); }
+  input, select { font: inherit; color: var(--ink); background: var(--plate); border: 1px solid var(--rule); padding: 9px 10px; width: 100%; }
+  button { font: 600 15px system-ui, sans-serif; background: var(--ink); color: var(--bg); border: 0; padding: 12px 20px; cursor: pointer; grid-column: 1 / -1; justify-self: start; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #2740e6; outline-offset: 2px; }
+  #result { margin-top: 26px; border-top: 1px solid var(--ink); padding-top: 18px; }
+  .score { font-size: 3rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .flag { display: inline-block; margin-left: 10px; padding: 3px 10px; font-size: 14px; font-weight: 600; border: 1.5px solid; vertical-align: middle; }
+  .flag.high { color: var(--accent); } .flag.low { color: var(--ok); }
+  ul { padding-left: 20px; } .err { color: #b3261e; font-size: 14px; }
+  .note { color: var(--muted); font-size: 13px; margin-top: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Churn Risk Checker</h1>
+  <p class="sub">Enter a customer. The model scores how likely they are to leave and shows what drives the score.</p>
+  <p class="banner">{{ card.limits[0] }}</p>
+  <form id="f">
+    <label>Months as a customer <input name="tenure_months" type="number" min="{{ rules.tenure_months[0] }}" max="{{ rules.tenure_months[1] }}" value="6" required></label>
+    <label>Contract <select name="contract">{% for c in choices.contract %}<option>{{ c }}</option>{% endfor %}</select></label>
+    <label>Plan <select name="plan">{% for c in choices.plan %}<option>{{ c }}</option>{% endfor %}</select></label>
+    <label>Payment method <select name="payment">{% for c in choices.payment %}<option>{{ c }}</option>{% endfor %}</select></label>
+    <label>Support calls, last 6 months <input name="support_calls" type="number" min="0" max="30" value="3" required></label>
+    <label>Late payments <input name="late_payments" type="number" min="0" max="30" value="1" required></label>
+    <label>Has a bundle <select name="has_bundle"><option value="0">No</option><option value="1">Yes</option></select></label>
+    <label>Monthly charge (NGN) <input name="monthly_charge_ngn" type="number" min="1000" max="100000" step="100" value="12000" required></label>
+    <button type="submit">Check risk</button>
+  </form>
+  <section id="result" aria-live="polite" hidden></section>
+</main>
+<script>
+  const form = document.getElementById("f"), out = document.getElementById("result");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const body = {};
+    for (const [k, v] of new FormData(form)) body[k] = ["contract", "plan", "payment"].includes(k) ? v : Number(v);
+    out.hidden = false;
+    try {
+      const r = await fetch("/api/predict", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const d = await r.json();
+      if (!r.ok) { out.innerHTML = '<p class="err">' + Object.entries(d.errors).map(([k, v]) => k + ": " + v).join("<br>") + "</p>"; return; }
+      const high = d.flagged;
+      out.innerHTML = '<div><span class="score">' + d.risk_score.toFixed(2) + '</span><span class="flag ' + (high ? "high" : "low") + '">' +
+        (high ? "Flag for a retention offer" : "No alert") + '</span></div><p>Alert threshold ' + d.threshold + '. Main reasons, compared with ' + d.compared_with + ':</p><ul>' +
+        d.top_factors.map(f => "<li>" + f.factor + " " + f.effect + "</li>").join("") + '</ul><p class="note">' + d.note + "</p>";
+    } catch (err) { out.innerHTML = '<p class="err">Could not reach the server.</p>'; }
+  });
+</script>
+</body>
+</html>
